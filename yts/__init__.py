@@ -24,6 +24,9 @@ def create_app(test_config=None):
             render_template('index.html')
         )
 
+    from . import movie
+    app.register_blueprint(movie.bp)
+
     from . import api
     app.register_blueprint(api.bp)
 

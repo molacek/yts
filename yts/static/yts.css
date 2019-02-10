@@ -1,0 +1,23 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: Arial;
+}
+
+
+.button {
+    cursor: pointer;
+    border-style: solid;
+    border-width: 1px;
+    padding: 3px;
+}
+
+#content {
+    text-align: center;
+}
+
+#navigation {
+    display: none;
+    text-align: center;
+    margin: 12px;
+}
