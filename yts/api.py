@@ -1,4 +1,5 @@
 from flask import Blueprint, Response
+from werkzeug.contrib.cache import MemcachedCache
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -8,19 +9,27 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 
 @bp.route('/page/<page>', methods=('POST',))
 def page(page):
-    req = requests.get("https://yts.am/browse-movies?page={0:s}".format(page))
-    if req.status_code != 200:
-        return(
-            Response(
-                "\{'status': 'http error', 'code': {0:d}\}".format(
-                    req.status_code
-                ),
-                200,
-                {'content-type': 'application/json'}
-            )
-        )
+    cache = MemcachedCache(['127.0.0.1:11211'])
+    req_text = cache.get("page_{0:s}".format(page))
+    if req_text is None:
 
-    soup = BeautifulSoup(req.text, "html.parser")
+        req = requests.get(
+            "https://yts.am/browse-movies?page={0:s}".format(page)
+        )
+        if req.status_code != 200:
+            return(
+                Response(
+                    "\{'status': 'http error', 'code': {0:d}\}".format(
+                        req.status_code
+                    ),
+                    200,
+                    {'content-type': 'application/json'}
+                )
+            )
+        req_text = req.text
+        cache.set("page_{0:s}".format(page), req_text)
+
+    soup = BeautifulSoup(req_text, "html.parser")
     movies_html = soup.find_all('div', class_="browse-movie-wrap")
     movies = {}
     n = 0
@@ -51,7 +60,7 @@ def download(id):
 
     req = requests.get(
         "https://yts.am/torrent/download/{0:s}".format(id),
-        allow_redirects=False
+        stream=False
     )
 
     if req.status_code != 200:
@@ -66,17 +75,17 @@ def download(id):
         )
 
     filename = "/home/lukas/transmission/{0:s}".format(
-        req.headers["Content-disposition"].split('=')[-1]
+        req.headers["Content-disposition"].split('=')[-1].strip('"')
     )
+    print(filename)
 
     with open(filename, 'wb') as f:
-        f.write(req.text)
+        for chunk in req.iter_content(chunk_size=1024):
+            f.write(chunk)
 
     return(
         Response(
-            "\{'status': 'OK', 'filename': {0:s}\}".format(
-                filename
-            ),
+            "{'status': 'OK'}",
             200,
             {'content-type': 'application/json'}
         )

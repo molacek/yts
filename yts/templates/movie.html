@@ -2,24 +2,6 @@
 </html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-<div id="content"></div>
-<div id="navigation">
-    <span id="prev" class="button" onclick="prevPage()">Prev</span>
-    <span id="page_counter"></span>
-    <span id="next" class="button" onclick="nextPage()">Next</span>
-</div>
-<script>
-init();
-</script>
-</body>
-</html>
-
-<!doctype html>
-</html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='yts.css') }}">
 <script src="{{ url_for('static', filename='yts.js') }}"></script>
 </head>
@@ -28,9 +10,11 @@ init();
 <div>
 <img src="{{ movie_thumbnail }}">
 </div>
+<div id="download">
 {% for (torrent_id, description) in download %}
     <span class="button" onclick="download('{{ torrent_id }}')">{{ description }}</span>
 {% endfor %}
+<div>
 
 <h3>{{ movie_year }} - {{ movie_genre}}</h3>
 <p>{{ movie_synopsis }}</p>

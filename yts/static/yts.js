@@ -1,3 +1,16 @@
+function download(torrent_id) {
+    req = new XMLHttpRequest();
+    req.open("POST", "../api/download/" + torrent_id, true);
+    req.onreadystatechange = function() {
+        if (req.readyState == 4) {
+            var div = document.createElement('div');
+            div.innerHTML = req.responseText;
+            document.getElementById('download').appendChild(div);
+        }
+    }
+    req.send()
+}
+
 function init() {
     page = 1;
     document.getElementById('page_counter').innerHTML = page;
