@@ -1,4 +1,4 @@
-from flask import Blueprint, Response
+from flask import Blueprint, Response, request
 from werkzeug.contrib.cache import MemcachedCache
 import requests
 import json
@@ -9,13 +9,27 @@ bp = Blueprint('api', __name__, url_prefix='/api')
 
 @bp.route('/page/<page>', methods=('POST',))
 def page(page):
-    cache = MemcachedCache(['127.0.0.1:11211'])
-    req_text = cache.get("page_{0:s}".format(page))
-    if req_text is None:
 
-        req = requests.get(
+    req_text = None
+    cache = MemcachedCache(['127.0.0.1:11211'])
+    search = request.form.get("search")
+    if search:
+        url = (
+            "https://yts.am/browse-movies/"
+            "{0:s}/all/all/0/latest".format(search)
+        )
+        if page > "1":
+            url = "{0:s}?page={1:s}".format(url, page)
+    else:
+        url = (
             "https://yts.am/browse-movies?page={0:s}".format(page)
         )
+        req_text = cache.get("page_{0:s}".format(page))
+
+    if req_text is None:
+        print(url)
+
+        req = requests.get(url)
         if req.status_code != 200:
             return(
                 Response(
@@ -27,7 +41,8 @@ def page(page):
                 )
             )
         req_text = req.text
-        cache.set("page_{0:s}".format(page), req_text)
+        if not search:
+            cache.set("page_{0:s}".format(page), req_text)
 
     soup = BeautifulSoup(req_text, "html.parser")
     movies_html = soup.find_all('div', class_="browse-movie-wrap")

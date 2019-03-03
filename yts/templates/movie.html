@@ -12,7 +12,7 @@
 </div>
 <div id="download">
 {% for (torrent_id, description) in download %}
-    <span class="button" onclick="download('{{ torrent_id }}')">{{ description }}</span>
+    <button onclick="download('{{ torrent_id }}')">{{ description }}</button>
 {% endfor %}
 <div>
 

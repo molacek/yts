@@ -7,10 +7,14 @@
 </head>
 <body>
 <div id="content"></div>
+<div id="search">
+    <input type="search" id="search_input">
+    <button onclick="movieSearch()">Search</button>
+</div>
 <div id="navigation">
-    <span id="prev" class="button" onclick="prevPage()">Prev</span>
+    <button id="prev" onclick="prevPage()">Prev</button>
     <span id="page_counter"></span>
-    <span id="next" class="button" onclick="nextPage()">Next</span>
+    <button id="next" onclick="nextPage()">Next</button>
 </div>
 <script>
 init();
